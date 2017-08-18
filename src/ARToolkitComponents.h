@@ -8,44 +8,38 @@
 #ifndef ARToolkitComponents_h
 #define ARToolkitComponents_h
 
+
 #define STRINGIFY(A) #A
 
-namespace ARToolbox {
+namespace ARKitCommon {
     
-    const std::string camera_render_vertex = STRINGIFY (
-                                                        attribute vec2 position;
-                                                        varying vec2 vUv;
-                                                        
-                                                        const vec2 scale = vec2(0.5,0.5);
-                                                        void main(){
-                                                            vUv = position.xy * scale + scale;
-                                                            
-                                                            gl_Position = vec4(position,0.0,1.0);
-                                                        }
+    // borrowed from https://github.com/wdlindmeier/Cinder-Metal/blob/master/include/MetalHelpers.hpp
+    // helpful converting to and from SIMD
+    template <typename T, typename U >
+    const U static inline convert( const T & t )
+    {
+        U tmp;
+        memcpy(&tmp, &t, sizeof(U));
+        U ret = tmp;
+        return ret;
+    }
+
     
-    );
-    
-    const std::string camera_render_fragment = STRINGIFY (
-                                                          precision highp float;
-                                                          
-                                                          // this is the yyuv texture from ARKit
-                                                          uniform sampler2D cameraTexture;
-                                                          varying vec2 vUv;
-                                                          
-                                                          
-                                                          void main(){
-                                                              
-                                                              // flip uvs so image isn't inverted.
-                                                              vec2 textureCoordinate = vec2(vUv.s,1.0 - vUv.t);
-                                                              
-                                                              
-                                                              gl_FragColor = texture2D(cameraTexture,textureCoordinate);
-                                                          }
-                                                          
-                                                          
-                                                          
-                                                          
-    );
+    // joined camera matrices as one object.
+    typedef struct {
+#ifdef OF_VERSION_MAJOR
+        ofMatrix4x4 cameraTransform;
+        ofMatrix4x4 cameraProjection;
+        ofMatrix4x4 cameraView;
+#endif
+        
+#ifdef CINDER_COCOA_TOUCH
+        glm::mat4 cameraTransform;
+        glm::mat4 cameraProjection;
+        glm::mat4 cameraView;
+#endif
+        
+    }ARCameraMatrices;
     
     // keep camera image shader source in directly since this will never really have to change.
     // Shaders built with the help of
@@ -61,7 +55,16 @@ namespace ARToolbox {
                                                 
                                                 const vec2 scale = vec2(0.5,0.5);
                                                 void main(){
+                                                    
+                                                    
                                                     vUv = position.xy * scale + scale;
+                                                    
+                                                    // fix scaling?
+                                                    // https://stackoverflow.com/questions/24651369/blend-textures-of-different-size-coordinates-in-glsl/24654919#24654919
+                                                    vec2 fromCenter = vUv - scale;
+                                                    vec2 scaleFromCenter = fromCenter * vec2(1.7);
+                                                    
+                                                    vUv -= scaleFromCenter;
                                                     
                                                     gl_Position = rotationMatrix * vec4(position,0.0,1.0);
                                                 }
@@ -84,6 +87,11 @@ namespace ARToolbox {
                                                       
                                                       // flip uvs so image isn't inverted.
                                                       vec2 textureCoordinate = vec2(vUv.s,1.0 - vUv.t);
+                                                      
+                                                      //textureCoordinate += 1.7;
+                                                      
+                                                      // TODO just use vUv later - doing this cause quick
+                                                      //vec2 textureCoordinate = vUv;
                                                       
                                                       // Using BT.709 which is the standard for HDTV
                                                       mat3 colorConversionMatrix = mat3(

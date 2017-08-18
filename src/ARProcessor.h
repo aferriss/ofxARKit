@@ -8,22 +8,27 @@
 #ifndef ARProcessor_hpp
 #define ARProcessor_hpp
 
-#include "ofMain.h"
-#include "ofxiOS.h"
+#ifdef OF_VERSION_MAJOR
+    #include "ofMain.h"
+    #include "ofxiOS.h"
+#endif
+
+#ifdef CINDER_COCOA_TOUCH
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Fbo.h"
+#include "cinder/app/App.h"
+#include "cinder/gl/Context.h"
+#endif
+
 #include <memory>
 #include <ARKit/ARKit.h>
 #include "ARToolkitComponents.h"
 
-#define STRINGIFY(A) #A
+using namespace ARKitCommon;
+using namespace ci;
 
 typedef std::shared_ptr<class ARProcessor>ARRef;
 
-// joined camera matrices as one object.
-typedef struct {
-    ofMatrix4x4 cameraTransform;
-    ofMatrix4x4 cameraProjection;
-    ofMatrix4x4 cameraView;
-}ARCameraMatrices;
 
 /**
      Processing class to help deal with ARKit stuff like grabbing and converting the camera feed,
@@ -35,17 +40,17 @@ class ARProcessor {
 
     float ambientIntensity;
     
-    ofVec2f viewportSize;
+    CGSize viewportSize;
+    
+    bool initialAnchor = false;
     
     // ========== CAMERA IMAGE STUFF ================= //
-    ofFbo cameraFbo;
-    ofVec2f bufferSize;
-    bool bufferSizeSet;
-    
+
     CVOpenGLESTextureRef yTexture;
     CVOpenGLESTextureRef CbCrTexture;
     CVOpenGLESTextureCacheRef _videoTextureCache;
     
+#ifdef OF_VERSION_MAJOR
     // mesh to render camera image
     ofMesh cameraPlane;
     
@@ -57,6 +62,14 @@ class ARProcessor {
     
     // this handles rotating the camera image to the correct orientation.
     ofMatrix4x4 rotation;
+#endif
+    
+#ifdef CINDER_COCOA_TOUCH
+    ci::gl::GlslProgRef cameraConvertShader;
+    glm::mat4 rotation;
+    ci::gl::FboRef cameraPlane;
+#endif
+
     
     // joined object of both the transform and projection matrices
     ARCameraMatrices cameraMatrices;
@@ -112,30 +125,36 @@ public:
     // ps thanks zach for finding this!
     ARCameraMatrices getMatricesForOrientation(UIInterfaceOrientation orientation=UIInterfaceOrientationPortrait, float near=0.01,float far=1000.0);
 
+  
+#ifdef OF_VERSION_MAJOR
     ofMatrix4x4 getProjectionMatrix(){
         return cameraMatrices.cameraProjection;
     }
-
+    
     ofMatrix4x4 getViewMatrix(){
         return cameraMatrices.cameraView;
     }
-
+    
     ofMatrix4x4 getTransformMatrix(){
         return cameraMatrices.cameraTransform;
     }
+#endif
+    
+#ifdef CINDER_COCOA_TOUCH
+    glm::mat4 getProjectionMatrix(){
+        return cameraMatrices.cameraProjection;
+    }
+    
+    glm::mat4 getViewMatrix(){
+        return cameraMatrices.cameraView;
+    }
+    
+    glm::mat4 getTransformMatrix(){
+        return cameraMatrices.cameraTransform;
+    }
+#endif
     ARCameraMatrices getCameraMatrices(){
         return cameraMatrices;
-    }
-
-    // borrowed from https://github.com/wdlindmeier/Cinder-Metal/blob/master/include/MetalHelpers.hpp
-    // helpful converting to and from SIMD 
-    template <typename T, typename U >
-    const U static inline convert( const T & t )
-    {
-        U tmp;
-        memcpy(&tmp, &t, sizeof(U));
-        U ret = tmp;
-        return ret;
     }
 
   
