@@ -8,10 +8,11 @@
 #ifndef ARToolkitComponents_h
 #define ARToolkitComponents_h
 
-
+#include <string>
 #define STRINGIFY(A) #A
 
-namespace ARKitCommon {
+
+namespace ARCommon {
     
     // borrowed from https://github.com/wdlindmeier/Cinder-Metal/blob/master/include/MetalHelpers.hpp
     // helpful converting to and from SIMD
@@ -23,6 +24,8 @@ namespace ARKitCommon {
         U ret = tmp;
         return ret;
     }
+    
+    
 
     
     // joined camera matrices as one object.

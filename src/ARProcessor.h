@@ -18,14 +18,15 @@
 #include "cinder/gl/Fbo.h"
 #include "cinder/app/App.h"
 #include "cinder/gl/Context.h"
+using namespace ci;
 #endif
 
 #include <memory>
 #include <ARKit/ARKit.h>
 #include "ARToolkitComponents.h"
 
-using namespace ARKitCommon;
-using namespace ci;
+using namespace ARCommon;
+#include <OpenGLES/ES2/gl.h>
 
 typedef std::shared_ptr<class ARProcessor>ARRef;
 
@@ -42,15 +43,13 @@ class ARProcessor {
     
     CGSize viewportSize;
     
-    bool initialAnchor = false;
-    
     // ========== CAMERA IMAGE STUFF ================= //
 
     CVOpenGLESTextureRef yTexture;
     CVOpenGLESTextureRef CbCrTexture;
     CVOpenGLESTextureCacheRef _videoTextureCache;
     
-#ifdef OF_VERSION_MAJOR
+#ifdef OF_VERSION_PRE_RELEASE
     // mesh to render camera image
     ofMesh cameraPlane;
     
@@ -109,7 +108,6 @@ public:
     void updatePlanes();
     void addAnchor();
     void pauseSession();
-    void startSession();
     
     void setup();
     void update();
@@ -155,9 +153,8 @@ public:
 #endif
     ARCameraMatrices getCameraMatrices(){
         return cameraMatrices;
-    }
 
-  
+    }
 };
 
 

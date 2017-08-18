@@ -6,9 +6,14 @@
 //
 
 #include "ARProcessor.h"
+#ifdef CINDER_COCOA_TOUCH
 #include "cinder/app/cocoa/RendererImplGlCocoaTouch.h"
 using namespace ci;
+#endif
+
+#include "ofMain.h"
 using namespace std;
+using namespace ARCommon;
 
 ARProcessor::ARProcessor(){
 }
@@ -24,11 +29,6 @@ ARProcessor::~ARProcessor(){
 
 void ARProcessor::pauseSession(){
     [session pause];
-}
-
-void ARProcessor::startSession(){
-    // ARWorldTrackingSessionConfiguration *configuration = [ARWorldTrackingSessionConfiguration new];
-    
 }
 
 void ARProcessor::addAnchor(){
@@ -55,20 +55,19 @@ void ARProcessor::setup(){
     ambientIntensity = 0.0;
     orientation = UIInterfaceOrientationPortrait;
     shouldBuildCameraFrame = true;
+
   
     yTexture = NULL;
     CbCrTexture = NULL;
    
-    
-    
-    
+
 #ifdef OF_VERSION_MAJOR
     viewportSize = CGSizeMake(ofGetWindowWidth(), ofGetWindowHeight());
     
     // setup plane and shader in order to draw the camera feed
     cameraPlane = ofMesh::plane(ofGetWindowWidth(), ofGetWindowHeight());
-    cameraConvertShader.setupShaderFromSource(GL_VERTEX_SHADER, ARToolbox::camera_convert_vertex);
-    cameraConvertShader.setupShaderFromSource(GL_FRAGMENT_SHADER, ARToolbox::camera_convert_fragment);
+    cameraConvertShader.setupShaderFromSource(GL_VERTEX_SHADER, ARCommon::camera_convert_vertex);
+    cameraConvertShader.setupShaderFromSource(GL_FRAGMENT_SHADER, ARCommon::camera_convert_fragment);
     cameraConvertShader.linkProgram();
     
     // correct video orientation
@@ -153,9 +152,6 @@ void ARProcessor::update(){
         // grab current frame pixels from camera
         CVPixelBufferRef pixelBuffer = currentFrame.capturedImage;
         
-      
-
-        
         // if we have both planes from the camera, build the camera frame
         // in case we want to view it.
         if(shouldBuildCameraFrame){
@@ -226,9 +222,10 @@ void ARProcessor::buildCameraFrame(CVPixelBufferRef pixelBuffer){
     // ========= BUILD CAMERA TEXTURES ================= //
     yTexture = createTextureFromPixelBuffer(pixelBuffer, 0);
     
+
     int width = (int) CVPixelBufferGetWidthOfPlane(pixelBuffer,0);
     int height = (int) CVPixelBufferGetHeightOfPlane(pixelBuffer, 0);
-    
+
     CbCrTexture = createTextureFromPixelBuffer(pixelBuffer, 1,GL_LUMINANCE_ALPHA,width / 2, height / 2);
 
     
@@ -249,9 +246,6 @@ void ARProcessor::buildCameraFrame(CVPixelBufferRef pixelBuffer){
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     
     glBindTexture(CVOpenGLESTextureGetTarget(CbCrTexture), 0);
-    
-    
-    
     
     
     // write uniforms values to shader
@@ -286,7 +280,7 @@ float ARProcessor::getAmbientIntensity(){
 }
 
 ARCameraMatrices ARProcessor::getMatricesForOrientation(UIInterfaceOrientation orientation,float near, float far){
-    
+
 #ifdef OF_VERSION_MAJOR
     
     cameraMatrices.cameraView = convert<matrix_float4x4,ofMatrix4x4>([session.currentFrame.camera viewMatrixForOrientation:orientation]);
@@ -294,7 +288,7 @@ ARCameraMatrices ARProcessor::getMatricesForOrientation(UIInterfaceOrientation o
     
     matrix_float4x4 projection = [session.currentFrame.camera projectionMatrixForOrientation:orientation viewportSize:viewportSize zNear:near zFar:far];
     cameraMatrices.cameraProjection = convert<matrix_float4x4,ofMatrix4x4>(projection);
-    
+
     
 #endif
     return cameraMatrices;
