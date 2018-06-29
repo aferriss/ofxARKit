@@ -20,6 +20,7 @@ namespace ARCore {
         bool useAudio = false;
         bool useHighRes = true;
         bool useAutoFocus = true;
+        bool useScanner = false;
         
         NSObject<ARSessionDelegate> * delegateClass = NULL;
         
@@ -115,6 +116,20 @@ namespace ARCore {
                 NSLog(@"This device is unfortunately unable to use plane tracking");
             }
             
+            return *this;
+        }
+        
+        //! Enables Scanning of objects
+        SFormat& enableScanning(){
+            if([ARWorldTrackingConfiguration isSupported] && [ARObjectScanningConfiguration isSupported]){
+                if(@available(ios 12.0, *)){
+                    state.useScanner = true;
+                } else {
+                    NSLog(@"This version of iOS is to old to support 3d scanning");
+                }
+            } else {
+                NSLog(@"This device is unable to support 3d scanning");
+            }
             return *this;
         }
         
