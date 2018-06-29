@@ -492,7 +492,7 @@ namespace ARCore {
                 ofMultMatrix(anchor.transform);
                 ofFill();
                 ofSetColor(102,216,254,100);
-                ofRotate(90, 1, 0, 0);
+                ofRotateXDeg(90);
                 ofTranslate(anchor.position.x,anchor.position.y);
                 ofDrawRectangle(-anchor.position.x/2,-anchor.position.z/2,0,anchor.width,anchor.height);
                 ofSetColor(255);
