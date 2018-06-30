@@ -53,7 +53,7 @@ namespace ARCommon {
     }
     
     //! convert to simd based vec3
-    static const simd_float3 toSIMDFloat4(ofVec3f &vec){
+    static const simd_float3 toSIMDFloat3(ofVec3f &vec){
         return convert<ofVec3f,simd_float3>(vec);
     }
     
