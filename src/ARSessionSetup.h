@@ -73,6 +73,7 @@ namespace ARCore {
         
         //! Enables plane detection - vertical and horizontal
         SFormat& enablePlaneTracking(){
+           
             // not all devices can support plane tracking, check first to make sure it's supported.
             if([ARWorldTrackingConfiguration isSupported]){
                 state.usePlaneTracking = true;
@@ -124,6 +125,7 @@ namespace ARCore {
             if([ARWorldTrackingConfiguration isSupported] && [ARObjectScanningConfiguration isSupported]){
                 if(@available(ios 12.0, *)){
                     state.useScanner = true;
+                    state.planeDetectionType = ARPlaneDetectionHorizontal;
                 } else {
                     NSLog(@"This version of iOS is to old to support 3d scanning");
                 }
@@ -187,7 +189,15 @@ namespace ARCore {
         
         // if face tracking is not available, should pass through to here where we
         // figure out regular configuration, starting with determining if we can do plane detection.
-        if([ARWorldTrackingConfiguration isSupported]){
+        if(state.useScanner){
+            ARObjectScanningConfiguration * config = [ARObjectScanningConfiguration new];
+            
+            config.planeDetection = state.planeDetectionType;
+            config.autoFocusEnabled = true;
+            
+            [session runWithConfiguration:config];
+            
+        } else if([ARWorldTrackingConfiguration isSupported]){
             
             ARWorldTrackingConfiguration * config = [ARWorldTrackingConfiguration new];
             
