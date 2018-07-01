@@ -92,11 +92,8 @@ namespace ARObjects {
         // the raw reference to the 3d scan
         ARReferenceObject * referenceObject;
         
-        // has the async callback finished making the model yet
-        bool referenceReady;
-        
         // a screenshot that was taken at the moment that the model was created
-        ofImage screenshot;
+        UIImage screenshot;
         
         // descriptive name, unclear where this comes from
         string name;
