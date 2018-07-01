@@ -47,6 +47,11 @@ void ARProcessor::setup(bool debugMode){
     anchorController = ARAnchorManager::create(session);
     camera = ARCam::create(session);
     camera->setup(this->debugMode);
+    
+    ARConfiguration * config = session.configuration;
+    if([config isKindOfClass:[ARObjectScanningConfiguration class]]){
+        detector = ARDetector::create(session);
+    }
 }
 
 void ARProcessor::draw(){
@@ -179,4 +184,15 @@ void ARProcessor::drawPointCloud(){
     } else {
         ofLog(OF_LOG_WARNING, "Debug Mode not set");
     }
+}
+
+// ======== SCANNING API =========== //
+
+
+void ARProcessor::createScan(string name, matrix_float4x4 transform, ofVec3f centerPt, ofVec3f size){
+    detector->createScan(name, transform, centerPt, size);
+}
+
+void ARProcessor::saveScan(ScannedObject scan){
+    detector->saveScan(scan);
 }

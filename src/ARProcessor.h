@@ -19,6 +19,7 @@
 #include "ARDebugUtils.h"
 #include "ARCam.h"
 #include "ARSessionSetup.h"
+#include "ARDetector.h"
 
 typedef std::shared_ptr<class ARProcessor>ARRef;
 
@@ -83,6 +84,9 @@ public:
     
     //! A class to handle camera functionality.
     ARCore::ARCamRef camera;
+    
+    //! A class to handle scanning and detecting 3d objects
+    ARCore::ARDetectorRef detector;
     
     //! Returns the current tracking state of the ARKit framework.
     ARTrackingState getTrackingState();
@@ -155,6 +159,17 @@ public:
     std::vector<FaceAnchorObject> getFaces();
 #endif
     
+   //======== SCANNER API ============ //
+    
+    //! Finishes a scan of a 3d model. Scan should be called after the featurespoints have already been found on a real world object
+    void createScan(string name, matrix_float4x4 transform, ofVec3f center, ofVec3f size);
+    
+    //! Save scaneed .arobject file to the app's documents directory
+    void saveScan(ScannedObject scan);
+    
+    vector<ScannedObject> getScans(){
+        return detector->getScans();
+    }
     
    //======== CAMERA API ============ //
     
