@@ -268,18 +268,18 @@ namespace ARCore {
 
             }
             
-            if(shouldUpdatePlanes && planes.size() > 0){
-                for ( int i=planes.size()-1; i>=0; --i ){
-                    
-                    auto f_it = find_if(uuids.begin(), uuids.end(), [=](const NSUUID * obj) {
-                        return obj == planes[i].uuid;
-                    });
-                    if ( f_it == uuids.end() ){
-                        planes.erase( planes.begin() + i );
-                        //                        [session removeAnchor:planes[i].rawAnchor];
-                    }
-                }
-            }
+//            if(shouldUpdatePlanes && planes.size() > 0){
+//                for ( int i=planes.size()-1; i>=0; --i ){
+//
+//                    auto f_it = find_if(uuids.begin(), uuids.end(), [=](const NSUUID * obj) {
+//                        return obj == planes[i].uuid;
+//                    });
+//                    if ( f_it == uuids.end() ){
+//                        planes.erase( planes.begin() + i );
+//                        //                        [session removeAnchor:planes[i].rawAnchor];
+//                    }
+//                }
+//            }
         }
     }
 
