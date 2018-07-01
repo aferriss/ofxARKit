@@ -57,6 +57,11 @@ namespace ARCommon {
         return convert<ofVec3f,simd_float3>(vec);
     }
     
+    //! convert to ofVec3f
+    static ofVec3f toOfVec3f(simd_float3 &vec){
+        return convert<simd_float3,ofVec3f>(vec);
+    }
+    
     //! Extracts the xyz position from a matrix. It's assumed that the matrix you pass in
     //! is based off of a ARKit transform matrix which appears to switch some things around.
     static ofVec3f getAnchorXYZ(ofMatrix4x4 mat){
