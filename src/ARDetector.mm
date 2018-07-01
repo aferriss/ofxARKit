@@ -15,7 +15,7 @@ namespace ARCore {
         this->session = session;
     }
     
-    void ARDetector::createScan(matrix_float4x4 transform, ofVec3f centerPt, ofVec3f size){
+    void ARDetector::createScan(string name, matrix_float4x4 transform, ofVec3f centerPt, ofVec3f size){
         ARConfiguration * config = session.configuration;
         
         // make sure wer're in a scanning config
@@ -30,7 +30,8 @@ namespace ARCore {
             [session createReferenceObjectWithTransform:transform center:simCenter extent:simExtent completionHandler:^(ARReferenceObject * referenceObj, NSError * err){
                 
                 if(!err){
-                    addReferenceObject(referenceObj, createScreenshot());
+                    NSString * nsname = [NSString stringWithCString:name.c_str() encoding:[NSString defaultCStringEncoding]];
+                    addReferenceObject(nsname, referenceObj, createScreenshot());
                 } else {
                     NSLog(@"Error creating the reference object: %@", [err localizedDescription]);
                 }
@@ -59,11 +60,13 @@ namespace ARCore {
     // The save function also requires a screenshot as a UIImage
     void ARDetector::saveScan(ScannedObject scan){
         NSArray *paths = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-        NSURL *documentsURL = [paths lastObject];
+        NSURL * documentsURL = [paths lastObject];
+        NSString * extension = @".arobject";
+        NSString * filename = [scan.name stringByAppendingString:extension];
+        NSURL * finalURL = [documentsURL URLByAppendingPathComponent: filename];
         
         NSError * saveErr = nil;
-        
-        bool saveReferenceObject = [scan.referenceObject exportObjectToURL:documentsURL previewImage:scan.screenshot error: &saveErr];
+        bool saveReferenceObject = [scan.referenceObject exportObjectToURL:finalURL previewImage:scan.screenshot error: &saveErr];
         
         if(!saveReferenceObject){
             NSLog(@"Error saving the reference obj: %@", [saveErr localizedDescription]);
@@ -75,11 +78,11 @@ namespace ARCore {
         
     }
     
-    void ARDetector::addReferenceObject(ARReferenceObject * obj, UIImage * screenshot){
+    void ARDetector::addReferenceObject(NSString * name, ARReferenceObject * obj, UIImage * screenshot){
         ScannedObject scan;
         scan.referenceObject = obj;
         scan.screenshot = screenshot;
-        scan.name = ofToString(obj.name);
+        scan.name = name;
         
         simd_float3 c = obj.center;
         simd_float3 e = obj.extent;
