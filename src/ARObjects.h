@@ -88,6 +88,29 @@ namespace ARObjects {
         }
     }ARObject;
     
+    typedef struct {
+        // the raw reference to the 3d scan
+        ARReferenceObject * referenceObject;
+        
+        // has the async callback finished making the model yet
+        bool referenceReady;
+        
+        // a screenshot that was taken at the moment that the model was created
+        ofImage screenshot;
+        
+        // descriptive name, unclear where this comes from
+        string name;
+        
+        // these three properties are slurped off of the referenceObject and converted to ofVec3f for easy use
+        ofVec3f center;
+        ofVec3f extent;
+        ofVec3f scale;
+        
+        // a vector of the raw feature points in the scan
+        vector<glm::vec3> pointCloud;
+        
+    }ScannedObject;
+    
 #if AR_FACE_TRACKING
     //! The base class to build a Face geometry
     typedef struct {
